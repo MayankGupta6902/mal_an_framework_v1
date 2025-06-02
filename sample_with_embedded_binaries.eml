@@ -1,0 +1,115 @@
+Delivered-To: user@example.com
+Received: by 10.0.0.1 with SMTP id abc123
+	for <user@example.com>; Mon, 6 Jan 2025 12:00:00 -0800 (PST)
+Return-Path: <malicious@evil.example.com>
+From: "Security Update" <noreply@microsoft-security.net>
+To: user@example.com
+Subject: [URGENT] Critical Security Update Required
+Date: Mon, 6 Jan 2025 12:00:00 -0800
+Message-ID: <test123@evil.example.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----=_NextPart_000_0002_01D9A123.12345678"
+
+------=_NextPart_000_0002_01D9A123.12345678
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Security Update</title>
+</head>
+<body>
+    <h2>Critical Security Update Required</h2>
+    <p>Your system requires an immediate security update. Please download and run the attached security patch.</p>
+    
+    <p>System Information:</p>
+    <ul>
+        <li>Target Server: 192.168.1.100</li>
+        <li>Command Server: https://evil.example.com/c2/</li>
+        <li>Update URL: http://malware.badsite.com/update.exe</li>
+        <li>Admin Email: admin@target-corp.com</li>
+        <li>Backup Server: 10.0.0.50</li>
+    </ul>
+    
+    <p>API Endpoints:</p>
+    <pre>
+    GetUserInfoA
+    CreateProcessA
+    VirtualAllocEx
+    WriteProcessMemory
+    CreateRemoteThread
+    OpenProcess
+    TerminateProcess
+    RegCreateKeyA
+    RegSetValueA
+    InternetOpenA
+    InternetConnectA
+    HttpOpenRequestA
+    HttpSendRequestA
+    CryptEncrypt
+    CryptDecrypt
+    </pre>
+    
+    <p>Click <a href="https://phishing.evil.com/download?file=malware.exe">here</a> to download the update.</p>
+    
+    <script>
+    // Malicious JavaScript
+    var shellcode = "\x90\x90\x90\x90\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x50\x53\x89\xe1\xb0\x0b\xcd\x80";
+    var payload = "powershell.exe -EncodedCommand SQBuAHYAbwBrAGUALQBXAGUAYgBSAGUAcQB1AGUAcwB0";
+    </script>
+</body>
+</html>
+
+------=_NextPart_000_0002_01D9A123.12345678
+Content-Type: application/octet-stream; name="SecurityUpdate.exe"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="SecurityUpdate.exe"
+
+TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+UEsDBBQAAAAIAMN7gUQKo9wCAAAEAAAAGAAAAGdldEhhc2hlc1RhcmdldC5wc0QTAAAAA
+UEsDBBQAAAAIAMN7gUQKo9wCAAAEAAAAGAAAAGdldEhhc2hlc1RhcmdldC5wc0QTAAAAA
+c29tZSByYW5kb20gZGF0YSBoZXJlIGZvciBkZW1vbnN0cmF0aW9uCgAAAAAAAAAAAAAA
+KERNEL32.DLL
+USER32.DLL
+NTDLL.DLL
+ADVAPI32.DLL
+WS2_32.DLL
+WININET.DLL
+api-ms-win-core-processthreads-l1-1-0.dll
+api-ms-win-core-file-l1-1-0.dll
+
+------=_NextPart_000_0002_01D9A123.12345678
+Content-Type: application/vnd.ms-excel; name="report.xls"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="financial_report.xls"
+
+0M8R4KGxGuEAAAAAAAAAAAAAAAAAAAAAPgADAP7/CQAGAAAAAAAAAAAAAAABAAAAPgAA
+AAAAAABAAAAAygAAAAAAAAA8AAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+SOME_MALICIOUS_MACRO_CODE_HERE
+CreateProcess
+VirtualAlloc
+WriteFile
+CloseHandle
+ExitProcess
+RegOpenKey
+RegQueryValue
+InternetOpen
+URLDownloadToFile
+
+------=_NextPart_000_0002_01D9A123.12345678--
+
+X-Original-To: user@example.com
+X-Spam-Score: 9.5
+X-Virus-Status: INFECTED
+X-Malware-Scanner: Detected multiple threats 

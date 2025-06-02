@@ -1,0 +1,97 @@
+@echo off
+REM === Batch Script: Comprehensive Test for Deobfuscation Tool ===
+
+REM --- Set Variables (Basic Types) ---
+set A1=Hello
+set A2=World
+set A3="From Batch"
+set EMPTY=
+set WHITESPACE=     
+set QUOTED="Quoted String"
+set PATH_VAR=C:\Program Files\Test
+
+REM --- Set Variables with Embedded Quotes ---
+set WITH_QUOTES="This is ""a tricky"" string"
+
+REM --- Set Variables with Trailing Spaces ---
+set TRAIL=EndsHere    
+set LEAD=     StartsHere
+set BOTH=   Surround   
+
+REM --- Set Variables with Special Characters ---
+set SPECIAL1=!@#$%^&*()
+set SPECIAL2=%%DoublePercent
+set ESCAPE_TEST=^&echo off
+
+REM --- Nested Variable Definitions ---
+set NESTED_SIMPLE=%A1% %A2%
+set NESTED_DEEP=%NESTED_SIMPLE% %QUOTED%
+set DOUBLE_NESTED=%NESTED_DEEP% :: End
+
+REM --- Self-referencing Variable (should remain unchanged) ---
+set SELF=%SELF%
+
+REM --- Mixed Content (Should Test Parser Logic) ---
+REM Not a SET: set_this=should_not_be_captured
+REM Partial: setA4=NoSpace
+
+REM --- Commands with Variable Usage ---
+echo Basic: %A1% %A2%
+echo Quoted: %A3%
+echo Empty: -%EMPTY%-
+echo Whitespaced: -%WHITESPACE%-
+echo FilePath: %PATH_VAR%
+echo Quotes Inside: %WITH_QUOTES%
+echo Trail/Lead/Both: "%LEAD%" "%TRAIL%" "%BOTH%"
+echo Special Chars: %SPECIAL1% and %SPECIAL2%
+echo Escaped Echo: %ESCAPE_TEST%
+echo Nested Simple: %NESTED_SIMPLE%
+echo Nested Deep: %NESTED_DEEP%
+echo Double Nested: %DOUBLE_NESTED%
+echo Self Ref: %SELF%
+
+REM --- Undefined Variables ---
+echo Undefined1: %UNDEF1%
+echo Mid-sentence undefined: start-%UNDEF2%-end
+echo Command with undefined: copy %UNDEF3% destination
+
+REM --- Irregular SET Formatting ---
+SeT    MIXEDCASE=MixedValue
+SET no_space=NoSpaceDetected
+set    spaced_out      =     yes
+Set quoted="quoted manually"
+
+echo MixedCase: %MIXEDCASE%
+echo NoSpace: %no_space%
+echo Spaced Out: %spaced_out%
+echo Quoted Manual: %quoted%
+
+REM --- REM vs Real Command Confusion ---
+REM echo This should be ignored
+ReM echo Still ignored
+REMecho Not a comment — real command?
+
+REM --- Commented SETs (should be skipped) ---
+REM set COMMENTED=not_real
+REMset FAKE=wrong
+
+REM --- Delayed Expansion Simulation ---
+REM These won't work in real batch unless delayed expansion is on
+REM But should remain untouched by static deobfuscator
+set DELAYED=Before
+REM !DELAYED! won’t be resolved here, just for tool robustness
+echo Delayed style: !DELAYED!
+
+REM --- Line with multiple variable references ---
+echo MultiVar: %A1%-%A2%-%QUOTED%-%TRAIL%
+
+REM --- Line with mixed valid and invalid vars ---
+echo Mix: %A1%-%NOT_SET%-%MIXEDCASE%
+
+REM --- Obfuscation Simulation ---
+set xx1=%A1%
+set xx2=%xx1% %A2%
+set xx3=%xx2% %QUOTED%
+echo Obf Chain: %xx3%
+
+REM === End of Script ===
