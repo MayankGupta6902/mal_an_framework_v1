@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
-🔐 Advanced Hash Calculator CLI Tool (Single File)
-Author: Senior Python Engineer
+🔐 Advanced Hash Calculator CLI Tool (Single File Version)
+Author: YourNameHere (Senior Python Engineer)
 """
+
 import argparse
 import hashlib
 import mimetypes
@@ -14,7 +15,7 @@ import math
 import datetime
 from pathlib import Path
 
-# Optional external modules
+# Optional modules
 try:
     from colorama import Fore, Style, init as colorama_init
     colorama_init()
@@ -43,7 +44,7 @@ except ImportError:
 
 SUPPORTED_HASHES = [
     'md5', 'sha1', 'sha224', 'sha256', 'sha384', 'sha512',
-    'sha3_256', 'sha3_512', 'blake2b', 'blake2s'
+    'sha3_256', 'sha3_512', 'blake2b', 'blake2s', 'imphash'
 ]
 
 
@@ -72,15 +73,29 @@ def calculate_entropy(path: Path) -> float:
 
 
 def calculate_hash(path: Path, algo: str) -> str:
-    h = hashlib.new(algo)
-    with open(path, 'rb') as f:
-        if tqdm:
-            for chunk in tqdm(iter(lambda: f.read(8192), b""), desc=f"Hashing {algo.upper()}", unit="chunk"):
-                h.update(chunk)
-        else:
-            while chunk := f.read(8192):
-                h.update(chunk)
-    return h.hexdigest()
+    if algo.lower() == 'imphash':
+        if not pefile:
+            return "Error: pefile module not available"
+        try:
+            pe = pefile.PE(str(path))
+            return pe.get_imphash()
+        except Exception as e:
+            return f"Error: {str(e)}"
+    try:
+        h = hashlib.new(algo)
+    except ValueError:
+        return f"Error: Unsupported hash algorithm '{algo}'"
+    try:
+        with open(path, 'rb') as f:
+            if tqdm:
+                for chunk in tqdm(iter(lambda: f.read(8192), b""), desc=f"Hashing {algo.upper()}", unit="chunk"):
+                    h.update(chunk)
+            else:
+                while chunk := f.read(8192):
+                    h.update(chunk)
+        return h.hexdigest()
+    except Exception as e:
+        return f"Error reading file: {str(e)}"
 
 
 def compute_all_hashes(path: Path, algos: list) -> dict:
@@ -98,7 +113,7 @@ def compare_files(file1: Path, file2: Path, algo: str) -> bool:
 
 def check_pe_signature(path: Path) -> str:
     if not pefile:
-        return "pefile module not available"
+        return "Error: pefile module not available"
     try:
         pe = pefile.PE(str(path))
         return "Signed" if hasattr(pe, 'DIRECTORY_ENTRY_SECURITY') else "Not Signed"
@@ -106,17 +121,7 @@ def check_pe_signature(path: Path) -> str:
         return f"Error: {e}"
 
 
-def get_imphash(path: Path) -> str:
-    if not pefile:
-        return "pefile module not available"
-    try:
-        pe = pefile.PE(str(path))
-        return pe.get_imphash()
-    except Exception as e:
-        return f"Error: {e}"
-
-
-def print_output(info, hashes, args, entropy=None, signature=None, imphash=None):
+def print_output(info, hashes, args, entropy=None, signature=None):
     print(f"{Fore.CYAN}📄 File Info:{Style.RESET_ALL}")
     for k, v in info.items():
         print(f"  {Fore.YELLOW}{k}:{Style.RESET_ALL} {v}")
@@ -124,8 +129,6 @@ def print_output(info, hashes, args, entropy=None, signature=None, imphash=None)
         print(f"  {Fore.YELLOW}Entropy:{Style.RESET_ALL} {entropy}")
     if signature:
         print(f"  {Fore.YELLOW}Signature:{Style.RESET_ALL} {signature}")
-    if imphash:
-        print(f"  {Fore.YELLOW}Imphash:{Style.RESET_ALL} {imphash}")
 
     print(f"\n{Fore.GREEN}🔢 Hashes:{Style.RESET_ALL}")
     for k, v in hashes.items():
@@ -137,7 +140,7 @@ def print_output(info, hashes, args, entropy=None, signature=None, imphash=None)
             print(f"{Fore.GREEN}[✓] Copied {algo.upper()} to clipboard.{Style.RESET_ALL}")
 
 
-def export_output(path: Path, info, hashes, args, entropy=None, signature=None, imphash=None):
+def export_output(path: Path, info, hashes, args, entropy=None, signature=None):
     export_data = {
         "File Info": info,
         "Hashes": hashes,
@@ -146,30 +149,29 @@ def export_output(path: Path, info, hashes, args, entropy=None, signature=None, 
         export_data["Entropy"] = entropy
     if signature:
         export_data["Signature"] = signature
-    if imphash:
-        export_data["Imphash"] = imphash
 
-    if args.output == "json":
-        out_file = path.with_suffix(".hash.json")
-        with open(out_file, 'w') as f:
-            json.dump(export_data, f, indent=4)
-        print(f"[✓] JSON written to {out_file}")
-    elif args.output == "csv":
-        out_file = path.with_suffix(".hash.csv")
-        with open(out_file, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(["Key", "Value"])
-            for k, v in info.items():
-                writer.writerow([k, v])
-            for k, v in hashes.items():
-                writer.writerow([k, v])
-            if entropy:
-                writer.writerow(["Entropy", entropy])
-            if signature:
-                writer.writerow(["Signature", signature])
-            if imphash:
-                writer.writerow(["Imphash", imphash])
-        print(f"[✓] CSV written to {out_file}")
+    try:
+        if args.output == "json":
+            out_file = path.with_suffix(".hash.json")
+            with open(out_file, 'w') as f:
+                json.dump(export_data, f, indent=4)
+            print(f"[✓] JSON written to {out_file}")
+        elif args.output == "csv":
+            out_file = path.with_suffix(".hash.csv")
+            with open(out_file, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(["Key", "Value"])
+                for k, v in info.items():
+                    writer.writerow([k, v])
+                for k, v in hashes.items():
+                    writer.writerow([k, v])
+                if entropy:
+                    writer.writerow(["Entropy", entropy])
+                if signature:
+                    writer.writerow(["Signature", signature])
+            print(f"[✓] CSV written to {out_file}")
+    except Exception as e:
+        print(f"[✗] Failed to export: {e}")
 
 
 def parse_verify(value):
@@ -189,22 +191,22 @@ Examples:
   hash_calc.py --compare file1 file2 --hashes sha1
   hash_calc.py my_folder --recursive --output json
   hash_calc.py test.bin --verify sha256:<hash>
-
-Supported algorithms: md5, sha1, sha224, sha256, sha384, sha512,
-                      sha3_256, sha3_512, blake2b, blake2s
+  hash_calc.py malware.exe --hashes imphash
         """
     )
     parser.add_argument("filepath", nargs="?", help="Path to file or folder")
     parser.add_argument("--compare", nargs=2, help="Compare two files using specified hash algorithm (e.g., sha256)")
-    parser.add_argument("--hashes", nargs="+", help="Specify which hash algorithms to use (default: ask interactively)")
+    parser.add_argument("--hashes", nargs="+", help="Specify which hash algorithms to use (or 'all')")
     parser.add_argument("--verify", type=parse_verify, help="Verify file against known hash: sha256:<hash>")
     parser.add_argument("--output", choices=["text", "json", "csv"], default="text")
     parser.add_argument("--recursive", action="store_true", help="Recursively hash files in folder")
     parser.add_argument("--entropy", action="store_true", help="Include file entropy")
     parser.add_argument("--signature", action="store_true", help="Check PE signature (Windows only)")
-    parser.add_argument("--imphash", action="store_true", help="Include Import Hash (imphash) for PE files")
     parser.add_argument("--copy", help="Copy specific hash to clipboard (e.g., md5, sha256)")
     args = parser.parse_args()
+
+    if args.hashes and args.hashes == ["all"]:
+        args.hashes = SUPPORTED_HASHES
 
     if args.hashes:
         invalid = [h for h in args.hashes if h not in SUPPORTED_HASHES]
@@ -224,43 +226,35 @@ Supported algorithms: md5, sha1, sha224, sha256, sha384, sha512,
         parser.print_help()
         return
 
-    if not args.hashes:
-        print("[?] No hash algorithm specified. Choose from the following:")
-        for i, algo in enumerate(SUPPORTED_HASHES, 1):
-            print(f"  {i}. {algo}")
-        selected = input("Enter comma-separated numbers or 'all': ").strip()
-        if selected.lower() == 'all':
-            args.hashes = SUPPORTED_HASHES
-        else:
-            try:
-                indexes = list(map(int, selected.split(',')))
-                args.hashes = [SUPPORTED_HASHES[i-1] for i in indexes if 0 < i <= len(SUPPORTED_HASHES)]
-            except:
-                print("[✗] Invalid selection. Exiting.")
-                return
-
     path = Path(args.filepath)
-    files = []
+    if not path.exists():
+        print(f"[✗] File not found: {path}")
+        return
 
+    files = []
     if path.is_file():
         files = [path]
     elif path.is_dir() and args.recursive:
         files = [p for p in path.rglob('*') if p.is_file()]
     else:
-        print(f"[✗] Invalid path or use --recursive for folders.")
+        print(f"[✗] Invalid path or missing --recursive for folders.")
+        return
+
+    if not args.hashes and not (args.entropy or args.signature or args.verify):
+        print("[?] No analysis selected. Use --hashes or --entropy or --signature or --verify.")
+        parser.print_help()
         return
 
     for file in files:
         info = get_file_metadata(file)
-        hashes = compute_all_hashes(file, args.hashes)
+        hashes = compute_all_hashes(file, args.hashes) if args.hashes else {}
         entropy_val = calculate_entropy(file) if args.entropy else None
         signature_val = check_pe_signature(file) if args.signature else None
-        imphash_val = get_imphash(file) if args.imphash else None
 
         if args.output == "text":
-            print_output(info, hashes, args, entropy_val, signature_val, imphash_val)
+            print_output(info, hashes, args, entropy_val, signature_val)
         else:
-            export_output(file, info, hashes, args, entropy_val, signature_val, imphash_val)
+            export_output(file, info, hashes, args, entropy_val, signature_val)
 
         if args.verify:
             algo, known_hash = args.verify
